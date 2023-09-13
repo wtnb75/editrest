@@ -92,7 +92,7 @@ def base_options(func):
     @click.option("--dry/--no-dry", default=False, show_default=True)
     @click.option("--user", "-u", help="user:password")
     @click.option("--bearer", help="bearer token")
-    @click.option("--verify/--no-verify", "-k", default=True, show_default=True)
+    @click.option("--insecure/--verify", "-k", default=False, show_default=True)
     @click.option("--content-type", default="application/json", show_default=True)
     @click.option("--accept", default="application/json", show_default=True)
     @click.option("--headers", "-H", multiple=True, help="'Header: value'")
@@ -101,11 +101,11 @@ def base_options(func):
     @click.option("--proxy", "-x", help="http/https proxy")
     @click.option("--cacert", type=click.Path(exists=True, file_okay=True, dir_okay=False), help="CA root certificate")
     @click.option("--cert", type=click.Path(exists=True, file_okay=True, dir_okay=False), help="mTLS client side certificate")
-    @click.option("--resolve", multiple=True)
+    @click.option("--resolve", multiple=True, help="hostname:port:ipaddress")
     @click.option("--location", "-L", type=bool)
     @click.argument("url")
     @functools.wraps(func)
-    def _(url, format, dry, user, bearer, verify, content_type, accept, headers, verbose, params, proxy, cacert, cert, resolve, location, *args, **kwargs):
+    def _(url, format, dry, user, bearer, insecure, content_type, accept, headers, verbose, params, proxy, cacert, cert, resolve, location, *args, **kwargs):
         import logging
         fmt = "%(asctime)s %(levelname)s %(name)s %(message)s"
         if verbose is None:
@@ -115,7 +115,7 @@ def base_options(func):
         else:
             logging.basicConfig(format=fmt, level="WARNING")
         session = requests.Session()
-        session.verify = verify
+        session.verify = not insecure
         if not location:
             session.max_redirects = 0
         if cacert:
