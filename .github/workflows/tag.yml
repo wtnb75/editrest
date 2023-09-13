@@ -1,0 +1,23 @@
+name: tag
+
+on:
+  push:
+    tags:
+    - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: versioning
+      run: "echo \"VERSION = '${GITHUB_REF##*/v}'\" > editrest/version.py"
+    - uses: ./.github/actions/pytest
+    - uses: ./.github/actions/pypi-upload
+      with:
+        username: ${{ secrets.TWINE_USERNAME }}
+        password: ${{ secrets.TWINE_PASSWORD }}
+        repository_url: ${{ secrets.TWINE_REPOSITORY_URL }}
+    - uses: ./.github/actions/docker
+      with:
+        password: ${{ secrets.GITHUB_TOKEN }}
