@@ -1,0 +1,6 @@
+python-editor
+requests
+click
+toml
+pyyaml
+jsondiff
