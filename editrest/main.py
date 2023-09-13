@@ -99,13 +99,17 @@ def base_options(func):
     @click.option("--params", multiple=True, help="param=value")
     @click.option("--verbose/--quiet")
     @click.option("--proxy", "-x", help="http/https proxy")
-    @click.option("--cacert", type=click.Path(exists=True, file_okay=True, dir_okay=False), help="CA root certificate")
-    @click.option("--cert", type=click.Path(exists=True, file_okay=True, dir_okay=False), help="mTLS client side certificate")
+    @click.option("--cacert", type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                  help="CA root certificate")
+    @click.option("--cert", type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                  help="mTLS client side certificate")
     @click.option("--resolve", multiple=True, help="hostname:port:ipaddress")
     @click.option("--location", "-L", type=bool)
     @click.argument("url")
     @functools.wraps(func)
-    def _(url, format, dry, user, bearer, insecure, content_type, accept, headers, verbose, params, proxy, cacert, cert, resolve, location, *args, **kwargs):
+    def _(url, format, dry, user, bearer, insecure, content_type, accept,
+          headers, verbose, params, proxy, cacert, cert, resolve, location,
+          *args, **kwargs):
         import logging
         fmt = "%(asctime)s %(levelname)s %(name)s %(message)s"
         if verbose is None:
@@ -138,8 +142,8 @@ def base_options(func):
             session.params[k] = v
         if resolve:
             resolve_map = {}
-            for l in resolve:
-                ll = l.split(":", 2)
+            for resolve1 in resolve:
+                ll = resolve1.split(":", 2)
                 if len(ll) == 3:
                     k = (ll[0], int(ll[1]))
                     v = ll[2]
