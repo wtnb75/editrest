@@ -29,7 +29,9 @@ def cli(ctx):
         click.echo(ctx.get_help())
 
 
-def parse(b: bytes, format: str = "json"):
+def parse(b: bytes | str, format: str = "json"):
+    if isinstance(b, str):
+        b = b.encode("utf-8")
     if format == "json":
         return json.loads(b)
     elif format == "yaml":

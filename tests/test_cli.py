@@ -59,7 +59,7 @@ class TestCLI(unittest.TestCase):
             edit.return_value = json.dumps(self.oldjson)
             sess.return_value.request.return_value.json.return_value = self.oldjson
             sess.return_value.request.return_value.status_code = 200
-            res = CliRunner().invoke(cli, ["get-put", "url"], input="y\n")
+            res = CliRunner().invoke(cli, ["get-post", "url"], input="y\n")
             self.assertEqual(1, res.exit_code)
             self.assertIsNotNone(res.exception)
             self.assertEqual(NotChanged, type(res.exception))
