@@ -3,7 +3,6 @@ from unittest.mock import patch
 from click.testing import CliRunner
 from editrest.main import cli, NotChanged
 import json
-from logging import getLogger
 
 
 class TestCLI(unittest.TestCase):
