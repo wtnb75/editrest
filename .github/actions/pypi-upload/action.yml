@@ -2,6 +2,7 @@ inputs:
   username:
     description: pypi userrname
     required: true
+    default: ${{ github.actor }}
   password:
     description: pypi password
     required: true

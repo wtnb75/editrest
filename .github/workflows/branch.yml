@@ -1,0 +1,16 @@
+name: branch
+
+on:
+  push:
+    branches-ignore: [main, gh-pages]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: ./.github/actions/pytest
+    - uses: ./.github/actions/merge-pages
+    #- uses: ./.github/actions/docker
+    #  with:
+    #    password: ${{ secrets.GITHUB_TOKEN }}

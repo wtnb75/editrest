@@ -3,4 +3,4 @@ requests
 click
 toml
 pyyaml
-jsondiff
+jsonpatch
