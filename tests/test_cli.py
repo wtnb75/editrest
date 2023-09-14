@@ -5,8 +5,6 @@ from editrest.main import cli, NotChanged
 import json
 from logging import getLogger
 
-_log = getLogger(__name__)
-
 
 class TestCLI(unittest.TestCase):
     def setUp(self):

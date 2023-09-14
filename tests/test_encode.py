@@ -9,14 +9,14 @@ class TestEncodeDecode(unittest.TestCase):
     arraydata = [{"key": "value"}, {"key2": "value2"}]
 
     def test_dict(self):
-        for format in ["json", "pprint", "yaml", "toml"]:
+        for format in ["json", "pprint", "yaml", "toml", "raw"]:
             with self.subTest(format=format):
                 data = encode(self.dictdata, format=format)
                 newdata = parse(data, format=format)
                 self.assertEqual(newdata, self.dictdata)
 
     def test_array(self):
-        for format in ["json", "pprint", "yaml"]:  # toml does not support array?
+        for format in ["json", "pprint", "yaml", "raw"]:  # toml does not support array?
             with self.subTest(format=format):
                 data = encode(self.arraydata, format=format)
                 newdata = parse(data, format=format)
