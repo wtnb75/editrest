@@ -40,6 +40,8 @@ def parse(b: bytes | str, format: str = "json"):
         return toml.loads(b.decode())
     elif format == "pprint":
         return ast.literal_eval(b.decode())
+    elif format == "raw":
+        return b
     raise NotImplementedError(f"invalid format {format}")
 
 
@@ -54,6 +56,8 @@ def encode(d, format: str = "json") -> bytes:
         return toml.dumps(d).encode()
     elif format == "pprint":
         return pprint.pformat(d)
+    elif format == "raw":
+        return d
     raise NotImplementedError(f"invalid format {format}")
 
 
@@ -65,7 +69,10 @@ def do1(url: str, read_method: str = "GET", write_method: str = "PUT",
     old_res = session.request(read_method, url)
     _log.debug("response %s, headers=%s", old_res, str(old_res.headers))
     old_res.raise_for_status()
-    data = old_res.json()
+    try:
+        data = old_res.json()
+    except ValueError:
+        data = old_res.content
     new_msg = editor.edit(contents=encode(data, format), suffix=f".{format}")
     new_data = parse(new_msg, format)
     if data == new_data:
@@ -74,7 +81,10 @@ def do1(url: str, read_method: str = "GET", write_method: str = "PUT",
     click.echo(f"change: {p.patch}")
     if not dry:
         click.confirm('Do you want to continue?', abort=True)
-        res = session.request(write_method, url, json=new_data)
+        if isinstance(new_data, (bytes, str)):
+            res = session.request(write_method, url, data=new_data)
+        else:
+            res = session.request(write_method, url, json=new_data)
         _log.debug("response %s, headers=%s", res, str(res.headers))
         try:
             out = res.json()
