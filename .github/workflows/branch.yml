@@ -11,6 +11,6 @@ jobs:
     - uses: actions/checkout@master
     - uses: ./.github/actions/pytest
     - uses: ./.github/actions/merge-pages
-    - uses: ./.github/actions/docker
-      with:
-        password: ${{ secrets.GITHUB_TOKEN }}
+    #- uses: ./.github/actions/docker
+    #  with:
+    #    password: ${{ secrets.GITHUB_TOKEN }}
