@@ -13,7 +13,7 @@ jobs:
     - name: versioning
       run: "echo \"VERSION = '${GITHUB_REF##*/v}'\" > editrest/version.py"
     - name: docker versioning
-      run: "echo LABEL org.opencontainers.image.version=\"${GITHUB_REF##*/v}\"" >> docker/Dockerfile"
+      run: "echo LABEL org.opencontainers.image.version=\"${{ github.ref_name }}\"" >> docker/Dockerfile"
     - uses: ./.github/actions/pytest
     - uses: ./.github/actions/pypi-upload
       with:
