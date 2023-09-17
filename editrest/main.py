@@ -9,6 +9,7 @@ import pprint
 import ast
 import functools
 import jsonpatch
+from unittest.mock import patch
 from logging import getLogger
 from typing import Optional
 from .version import VERSION
@@ -181,7 +182,8 @@ def base_options(func):
                     hostname = host
                     _log.debug("raw resolve %s -> %s", address, hostname)
                 return _orig_create_connection((hostname, port), *args, **kwargs)
-            connection.create_connection = patched_create_connection
+            with patch.object(connection, "create_connection", side_effect=patched_create_connection):
+                return func(url=url, format=format, dry=dry, session=session, *args, **kwargs)
         return func(url=url, format=format, dry=dry, session=session, *args, **kwargs)
     return _
 
