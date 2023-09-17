@@ -9,6 +9,7 @@ import pprint
 import ast
 import functools
 import jsonpatch
+from unittest.mock import patch
 from logging import getLogger
 from typing import Optional
 from .version import VERSION
@@ -109,7 +110,7 @@ def base_options(func):
     @click.option("--accept", default="application/json", show_default=True)
     @click.option("--headers", "-H", multiple=True, help="'Header: value'")
     @click.option("--params", multiple=True, help="param=value")
-    @click.option("--verbose/--quiet")
+    @click.option("--verbose/--quiet", default=None)
     @click.option("--proxy", "-x", help="http/https proxy")
     @click.option("--cacert", type=click.Path(exists=True, file_okay=True, dir_okay=False),
                   help="CA root certificate")
@@ -181,7 +182,8 @@ def base_options(func):
                     hostname = host
                     _log.debug("raw resolve %s -> %s", address, hostname)
                 return _orig_create_connection((hostname, port), *args, **kwargs)
-            connection.create_connection = patched_create_connection
+            with patch.object(connection, "create_connection", side_effect=patched_create_connection):
+                return func(url=url, format=format, dry=dry, session=session, *args, **kwargs)
         return func(url=url, format=format, dry=dry, session=session, *args, **kwargs)
     return _
 

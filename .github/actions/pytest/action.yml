@@ -21,7 +21,7 @@ runs:
     run: flake8 --max-line-length=120 --format github editrest tests
     shell: bash
   - name: test
-    run: PYTHONPATH=. pytest
+    run: PYTHONPATH=. pytest --log-level=DEBUG -s
     shell: bash
   - name: build
     run: python setup.py bdist_wheel
