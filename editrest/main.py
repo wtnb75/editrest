@@ -109,7 +109,7 @@ def base_options(func):
     @click.option("--accept", default="application/json", show_default=True)
     @click.option("--headers", "-H", multiple=True, help="'Header: value'")
     @click.option("--params", multiple=True, help="param=value")
-    @click.option("--verbose/--quiet")
+    @click.option("--verbose/--quiet", default=None)
     @click.option("--proxy", "-x", help="http/https proxy")
     @click.option("--cacert", type=click.Path(exists=True, file_okay=True, dir_okay=False),
                   help="CA root certificate")
