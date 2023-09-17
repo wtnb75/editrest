@@ -42,12 +42,12 @@ class TestHTTPS(unittest.TestCase):
         k = crypto.PKey()
         k.generate_key(crypto.TYPE_RSA, 2048)
         c = crypto.X509()
-        c.get_subject().C = 'XX'  # country code
-        c.get_subject().ST = 'dummy state'
-        c.get_subject().L = 'dummy region'
-        c.get_subject().O = 'dummy org'
-        c.get_subject().OU = 'dummy org unit'
-        c.get_subject().CN = cname
+        c.get_subject().countryName = 'XX'  # country code
+        c.get_subject().stateOrProvinceName = 'dummy state'
+        c.get_subject().localityName = 'dummy region'
+        c.get_subject().organizationName = 'dummy org'
+        c.get_subject().organizationalUnitName = 'dummy org unit'
+        c.get_subject().commonName = cname
         c.set_serial_number(1)
         c.gmtime_adj_notBefore(0)
         c.gmtime_adj_notAfter(60*60*24*365*10)
