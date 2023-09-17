@@ -49,6 +49,10 @@ class TestHTTPS(unittest.TestCase):
         c.get_subject().organizationalUnitName = 'dummy org unit'
         c.get_subject().commonName = cname
         c.set_serial_number(1)
+        c.add_extensions([
+            crypto.X509Extension(b'subjectAltName', False, ", ".join(
+                [f"DNS:{cname}", f"DNS:*.{cname}"]).encode("utf-8"))
+        ])
         c.gmtime_adj_notBefore(0)
         c.gmtime_adj_notAfter(60*60*24*365*10)
         c.set_pubkey(k)
