@@ -16,10 +16,10 @@ jobs:
       run: |
         echo LABEL org.opencontainers.image.version=\"${{ github.ref_name }}\" >> docker/Dockerfile
     - uses: ./.github/actions/pytest
+    - uses: ./.github/actions/docker
+      with:
+        password: ${{ secrets.GITHUB_TOKEN }}
     - uses: ./.github/actions/pypi-upload
       with:
         username: ${{ secrets.TWINE_USERNAME }}
         password: ${{ secrets.TWINE_PASSWORD }}
-    - uses: ./.github/actions/docker
-      with:
-        password: ${{ secrets.GITHUB_TOKEN }}
