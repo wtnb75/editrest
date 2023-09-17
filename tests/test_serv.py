@@ -152,3 +152,19 @@ class TestHTTPS(unittest.TestCase):
                        res.output, exc_info=res.exc_info)
             self.assertEqual(1, res.exit_code)
             self.assertIsInstance(res.exception, requests.exceptions.SSLError)
+
+    def test_ssl2_1(self):
+        srvhost = "server.local"
+        srvkey, srvcert = self._mkcert(srvhost)
+        self._sign_cert(srvcert, self.cakey, self.cacert)
+        with self._boot_server1(srvkey, srvcert) as srv, \
+                patch("editor.edit") as edit:
+            edit.return_value = b'{"hello": true}'
+            host = srvhost
+            port = srv.server_address[1]
+            res = CliRunner().invoke(
+                cli, ["get-post", "--dry", f"https://{host}:{port}/example",
+                      "--resolve", f"{host}:{port}:127.0.0.1", "--insecure",])
+            _log.debug("res %s output=%s", res.exit_code,
+                       res.output, exc_info=res.exc_info)
+            self.assertEqual(0, res.exit_code)
