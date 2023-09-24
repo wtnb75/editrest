@@ -27,7 +27,7 @@ runs:
       build-args: |
         GH_BRANCH=${{ github.ref_name }}
       push: true
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/amd64,linux/arm64,linux/riscv64
       tags: ${{ inputs.registry }}/${{ github.repository }}:${{ github.ref_name }}
   - name: build and push(main)
     if: github.ref_name == 'main'
@@ -37,5 +37,5 @@ runs:
         GH_BRANCH=${{ github.ref_name }}
       context: ./docker
       push: true
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/amd64,linux/arm64,linux/riscv64
       tags: ${{ inputs.registry }}/${{ github.repository }}:latest
