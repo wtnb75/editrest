@@ -15,7 +15,7 @@ jobs:
     - uses: wtnb75/actions/flake8@main
     - uses: wtnb75/actions/pytest@main
     - uses: wtnb75/actions/wheel@main
-    - uses: wtnb75/actions/merge-pages@main
+    - uses: wtnb75/actions/merge-pages@dollar
       with:
         dirs: cover
         pydist: dist
