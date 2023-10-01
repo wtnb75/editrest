@@ -17,7 +17,8 @@ jobs:
         pipinstall: ".[dev]"
     - uses: wtnb75/actions/flake8@main
     - uses: wtnb75/actions/pytest@main
-    - uses: wtnb75/actions/wheel@main
+    - id: wheel
+      uses: wtnb75/actions/wheel@main
     - uses: wtnb75/actions/docker@main
       with:
         push: 'true'
@@ -30,3 +31,4 @@ jobs:
       with:
         username: ${{ secrets.TWINE_USERNAME }}
         password: ${{ secrets.TWINE_PASSWORD }}
+        file: ${{ steps.wheel.outputs.filename }}
