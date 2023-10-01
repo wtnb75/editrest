@@ -23,6 +23,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
         context: ./docker
         image-version: ${{ github.ref_name }}
+        build-arg: |
+          GH_BRANCH=${{ github.ref_name }}
     - uses: wtnb75/actions/pypi-upload@main
       with:
         username: ${{ secrets.TWINE_USERNAME }}

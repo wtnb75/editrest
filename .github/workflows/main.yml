@@ -29,3 +29,6 @@ jobs:
       with:
         password: ${{ secrets.GITHUB_TOKEN }}
         context: ./docker
+        image-version: ${{ github.ref_name }}
+        build-arg: |
+          GH_BRANCH=${{ github.ref_name }}
