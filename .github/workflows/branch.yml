@@ -19,6 +19,8 @@ jobs:
       with:
         dirs: cover
         pydist: dist
+    - run: ls -lR publish
+      shell: bash
     - uses: wtnb75/actions/docker@main
       with:
         push: 'true'
