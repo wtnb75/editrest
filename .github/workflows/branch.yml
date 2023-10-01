@@ -21,6 +21,7 @@ jobs:
         pydist: dist
     - uses: wtnb75/actions/docker@main
       with:
+        push: 'true'
         password: ${{ secrets.GITHUB_TOKEN }}
         image-version: ${{ github.ref_name }}
         context: ./docker

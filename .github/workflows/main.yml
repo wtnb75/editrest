@@ -27,6 +27,7 @@ jobs:
         force_orphan: true
     - uses: wtnb75/actions/docker@main
       with:
+        push: 'true'
         password: ${{ secrets.GITHUB_TOKEN }}
         context: ./docker
         image-version: ${{ github.ref_name }}
