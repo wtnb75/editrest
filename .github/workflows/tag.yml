@@ -31,4 +31,4 @@ jobs:
       with:
         username: ${{ secrets.TWINE_USERNAME }}
         password: ${{ secrets.TWINE_PASSWORD }}
-        file: ${{ steps.wheel.outputs.filename }}
+        file: dist/${{ steps.wheel.outputs.filename }}
