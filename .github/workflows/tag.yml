@@ -12,14 +12,18 @@ jobs:
     - uses: actions/checkout@master
     - name: versioning
       run: "echo \"VERSION = '${GITHUB_REF##*/v}'\" > editrest/version.py"
-    - name: docker versioning
-      run: |
-        echo LABEL org.opencontainers.image.version=\"${{ github.ref_name }}\" >> docker/Dockerfile
-    - uses: ./.github/actions/pytest
-    - uses: ./.github/actions/docker
+    - uses: wtnb75/actions/python@main
+      with:
+        pipinstall: ".[dev]"
+    - uses: wtnb75/actions/flake8@main
+    - uses: wtnb75/actions/pytest@main
+    - uses: wtnb75/actions/wheel@main
+    - uses: wtnb75/actions/docker@main
       with:
         password: ${{ secrets.GITHUB_TOKEN }}
-    - uses: ./.github/actions/pypi-upload
+        context: ./docker
+        image-version: ${{ github.ref_name }}
+    - uses: wtnb75/actions/pypi-upload@main
       with:
         username: ${{ secrets.TWINE_USERNAME }}
         password: ${{ secrets.TWINE_PASSWORD }}
