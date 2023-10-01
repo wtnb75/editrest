@@ -9,8 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: ./.github/actions/pytest
-    - uses: ./.github/actions/merge-pages
-    - uses: ./.github/actions/docker
+    - uses: wtnb75/actions/python@main
       with:
+        pipinstall: ".[dev]"
+    - uses: wtnb75/actions/flake8@main
+    - uses: wtnb75/actions/pytest@main
+    - uses: wtnb75/actions/wheel@main
+    - uses: wtnb75/actions/merge-pages@main
+      with:
+        dirs: cover
+        pydist: dist
+    - uses: wtnb75/actions/docker@main
+      with:
+        push: 'true'
         password: ${{ secrets.GITHUB_TOKEN }}
+        image-version: ${{ github.ref_name }}
+        context: ./docker
+        build-args: |
+          GH_BRANCH=${{ github.ref_name }}
