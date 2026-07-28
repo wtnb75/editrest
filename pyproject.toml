@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "editrest"
+dynamic = ["version"]
+description = "REST edit: GET + vi + PUT"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Watanabe Takashi", email = "wtnb75@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "python-editor",
+    "requests",
+    "click",
+    "toml",
+    "pyyaml",
+    "jsonpatch",
+    # python-editor (last released 2019) imports distutils.spawn at module
+    # load time; distutils was removed from the stdlib in Python 3.12.
+    # setuptools' _distutils_hack shim restores it. Without this, `import
+    # editor` (and therefore `import editrest.main`) raises
+    # ModuleNotFoundError on Python >=3.12 -- verified locally on 3.13.
+    "setuptools",
+]
+
+[project.scripts]
+editrest = "editrest.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/wtnb75/editrest"
+
+[tool.hatch.version]
+path = "editrest/version.py"
+pattern = "VERSION = ['\"](?P<version>[^'\"]+)['\"]"
+
+[tool.hatch.build.targets.wheel]
+packages = ["editrest"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "pytest-github-actions-annotate-failures",
+    # pyOpenSSL>=26.2 dropped X509.add_extensions() (used by
+    # tests/test_serv.py to build a self-signed test CA); pin below that
+    # until the test is ported to the modern cryptography-based API.
+    "pyOpenSSL<26.2",
+    "ruff",
+    "pdoc",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+python_files = ["test_*.py"]
+addopts = "--cov-report=html:cover --cov-report=term --cov-branch --cov-reset --cov=editrest --doctest-modules"

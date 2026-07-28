@@ -3,27 +3,36 @@ name: branch
 on:
   push:
     branches-ignore: [main, gh-pages]
+  workflow_dispatch:
+
+permissions:
+  packages: write
+  id-token: write
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: wtnb75/actions/python@main
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: wtnb75/actions/python@d46e83a56abd145ef1af4a26bc9837ecd8ca4598 # v1.0.7
+    - uses: wtnb75/actions/ruff@d46e83a56abd145ef1af4a26bc9837ecd8ca4598 # v1.0.7
+    - uses: wtnb75/actions/pytest@d46e83a56abd145ef1af4a26bc9837ecd8ca4598 # v1.0.7
+    - uses: wtnb75/actions/wheel@d46e83a56abd145ef1af4a26bc9837ecd8ca4598 # v1.0.7
+    - id: pdoc
+      uses: wtnb75/actions/pdoc@d46e83a56abd145ef1af4a26bc9837ecd8ca4598 # v1.0.7
       with:
-        pipinstall: ".[dev]"
-    - uses: wtnb75/actions/flake8@main
-    - uses: wtnb75/actions/pytest@main
-    - uses: wtnb75/actions/wheel@main
-    - uses: wtnb75/actions/merge-pages@main
+        output-dir: docs
+        module: editrest
+        other-options: --docformat google
+    - uses: wtnb75/actions/merge-pages@d46e83a56abd145ef1af4a26bc9837ecd8ca4598 # v1.0.7
       with:
-        dirs: cover
-        pydist: dist
-    - uses: wtnb75/actions/docker@main
+        dirs: "cover docs"
+        #pydist: dist
+    - uses: wtnb75/actions/docker@d46e83a56abd145ef1af4a26bc9837ecd8ca4598 # v1.0.7
       with:
         push: 'true'
         password: ${{ secrets.GITHUB_TOKEN }}
-        image-version: ${{ github.ref_name }}
         context: ./docker
+        image-version: ${{ github.ref_name }}
         build-args: |
           GH_BRANCH=${{ github.ref_name }}

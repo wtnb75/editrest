@@ -1,17 +1,18 @@
-import click
-import io
-import editor
-import requests
-import json
-import yaml
-import toml
-import pprint
 import ast
 import functools
-import jsonpatch
-from unittest.mock import patch
+import io
+import json
+import pprint
 from logging import getLogger
-from typing import Optional
+from unittest.mock import patch
+
+import click
+import editor
+import jsonpatch
+import requests
+import toml
+import yaml
+
 from .version import VERSION
 
 _log = getLogger(__name__)
@@ -62,9 +63,14 @@ def encode(d, format: str = "json") -> bytes:
     raise NotImplementedError(f"invalid format {format}")
 
 
-def do1(url: str, read_method: str = "GET", write_method: str = "PUT",
-        format: str = "json", session: Optional[requests.Session] = None,
-        dry: bool = False) -> requests.Response:
+def do1(
+    url: str,
+    read_method: str = "GET",
+    write_method: str = "PUT",
+    format: str = "json",
+    session: requests.Session | None = None,
+    dry: bool = False,
+) -> requests.Response:
     if session is None:
         session = requests.Session()
     old_res = session.request(read_method, url)
@@ -81,7 +87,7 @@ def do1(url: str, read_method: str = "GET", write_method: str = "PUT",
     p = jsonpatch.make_patch(data, new_data)
     click.echo(f"change: {p.patch}")
     if not dry:
-        click.confirm('Do you want to continue?', abort=True)
+        click.confirm("Do you want to continue?", abort=True)
         if isinstance(new_data, (bytes, str)):
             res = session.request(write_method, url, data=new_data)
         else:
@@ -89,11 +95,11 @@ def do1(url: str, read_method: str = "GET", write_method: str = "PUT",
         _log.debug("response %s, headers=%s", res, str(res.headers))
         try:
             out = res.json()
+            click.echo(f"{write_method} {url} {new_data} -> {res.status_code} {out}")
+        except ValueError:
             click.echo(
-                f"{write_method} {url} {new_data} -> {res.status_code} {out}")
-        except Exception:
-            click.echo(
-                f"{write_method} {url} {new_data} -> {res.status_code} {res.content}")
+                f"{write_method} {url} {new_data} -> {res.status_code} {res.content}"
+            )
         res.raise_for_status()
         return res
     click.echo(f"(dry) {write_method} {encode(new_data, 'json')}")
@@ -101,7 +107,12 @@ def do1(url: str, read_method: str = "GET", write_method: str = "PUT",
 
 
 def base_options(func):
-    @click.option("--format", default="json", type=click.Choice(["json", "yaml", "toml", "pprint"]), show_default=True)
+    @click.option(
+        "--format",
+        default="json",
+        type=click.Choice(["json", "yaml", "toml", "pprint"]),
+        show_default=True,
+    )
     @click.option("--dry/--no-dry", default=False, show_default=True)
     @click.option("--user", "-u", help="user:password")
     @click.option("--bearer", help="bearer token")
@@ -112,18 +123,42 @@ def base_options(func):
     @click.option("--params", multiple=True, help="param=value")
     @click.option("--verbose/--quiet", default=None)
     @click.option("--proxy", "-x", help="http/https proxy")
-    @click.option("--cacert", type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                  help="CA root certificate")
-    @click.option("--cert", type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                  help="mTLS client side certificate")
+    @click.option(
+        "--cacert",
+        type=click.Path(exists=True, file_okay=True, dir_okay=False),
+        help="CA root certificate",
+    )
+    @click.option(
+        "--cert",
+        type=click.Path(exists=True, file_okay=True, dir_okay=False),
+        help="mTLS client side certificate",
+    )
     @click.option("--resolve", multiple=True, help="hostname:port:ipaddress")
     @click.option("--location", "-L", type=bool)
     @click.argument("url")
     @functools.wraps(func)
-    def _(url, format, dry, user, bearer, insecure, content_type, accept,
-          headers, verbose, params, proxy, cacert, cert, resolve, location,
-          *args, **kwargs):
+    def _(
+        url,
+        format,
+        dry,
+        user,
+        bearer,
+        insecure,
+        content_type,
+        accept,
+        headers,
+        verbose,
+        params,
+        proxy,
+        cacert,
+        cert,
+        resolve,
+        location,
+        *args,
+        **kwargs,
+    ):
         import logging
+
         fmt = "%(asctime)s %(levelname)s %(name)s %(message)s"
         if verbose is None:
             logging.basicConfig(format=fmt, level="INFO")
@@ -164,10 +199,11 @@ def base_options(func):
                     k = ll[0]
                     v = ll[1]
                 else:
-                    raise Exception(r"invalid resolve option: {l}")
+                    raise ValueError(f"invalid resolve option: {resolve1}")
                 resolve_map[k] = v
             # https://stackoverflow.com/questions/22609385/python-requests-library-define-specific-dns
             from urllib3.util import connection
+
             _orig_create_connection = connection.create_connection
 
             def patched_create_connection(address, *args, **kwargs):
@@ -182,9 +218,15 @@ def base_options(func):
                     hostname = host
                     _log.debug("raw resolve %s -> %s", address, hostname)
                 return _orig_create_connection((hostname, port), *args, **kwargs)
-            with patch.object(connection, "create_connection", side_effect=patched_create_connection):
-                return func(url=url, format=format, dry=dry, session=session, *args, **kwargs)
-        return func(url=url, format=format, dry=dry, session=session, *args, **kwargs)
+
+            with patch.object(
+                connection, "create_connection", side_effect=patched_create_connection
+            ):
+                return func(
+                    *args, url=url, format=format, dry=dry, session=session, **kwargs
+                )
+        return func(*args, url=url, format=format, dry=dry, session=session, **kwargs)
+
     return _
 
 
@@ -192,32 +234,56 @@ def base_options(func):
 @base_options
 def get_put(url, format, dry, session):
     """GET url and PUT"""
-    do1(url=url, read_method="GET", write_method="PUT",
-        format=format, dry=dry, session=session)
+    do1(
+        url=url,
+        read_method="GET",
+        write_method="PUT",
+        format=format,
+        dry=dry,
+        session=session,
+    )
 
 
 @cli.command()
 @base_options
 def get_delete(url, format, dry, session):
     """GET url and DELETE"""
-    do1(url=url, read_method="GET", write_method="DELETE",
-        format=format, dry=dry, session=session)
+    do1(
+        url=url,
+        read_method="GET",
+        write_method="DELETE",
+        format=format,
+        dry=dry,
+        session=session,
+    )
 
 
 @cli.command()
 @base_options
 def get_post(url, format, dry, session):
     """GET url and POST"""
-    do1(url=url, read_method="GET", write_method="POST",
-        format=format, dry=dry, session=session)
+    do1(
+        url=url,
+        read_method="GET",
+        write_method="POST",
+        format=format,
+        dry=dry,
+        session=session,
+    )
 
 
 @cli.command()
 @base_options
 def get_patch(url, format, dry, session):
     """GET url and PATCH"""
-    do1(url=url, read_method="GET", write_method="PATCH",
-        format=format, dry=dry, session=session)
+    do1(
+        url=url,
+        read_method="GET",
+        write_method="PATCH",
+        format=format,
+        dry=dry,
+        session=session,
+    )
 
 
 @cli.command()
@@ -226,8 +292,14 @@ def get_patch(url, format, dry, session):
 @click.option("--write-method", default="PUT", show_default=True)
 def run(url, format, dry, session, read_method, write_method):
     """{read-method} url and {write-method}"""
-    do1(url=url, read_method=read_method, write_method=write_method,
-        format=format, dry=dry, session=session)
+    do1(
+        url=url,
+        read_method=read_method,
+        write_method=write_method,
+        format=format,
+        dry=dry,
+        session=session,
+    )
 
 
 if __name__ == "__main__":
