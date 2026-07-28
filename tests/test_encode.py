@@ -1,12 +1,12 @@
 import unittest
-from editrest.main import parse, encode
+from typing import ClassVar
+
+from editrest.main import encode, parse
 
 
 class TestEncodeDecode(unittest.TestCase):
-    dictdata = {
-        "key": "value"
-    }
-    arraydata = [{"key": "value"}, {"key2": "value2"}]
+    dictdata: ClassVar[dict] = {"key": "value"}
+    arraydata: ClassVar[list] = [{"key": "value"}, {"key2": "value2"}]
 
     def test_dict(self):
         for format in ["json", "pprint", "yaml", "toml", "raw"]:
